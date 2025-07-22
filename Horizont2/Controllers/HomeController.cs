@@ -108,7 +108,7 @@ namespace Horizont2.Controllers
          public List<JsonResult> GetAssortmentApriori(string ids)
          {
              var listLong = ids.Split(',').Select(k=>Int64.Parse(k)).ToList();
-             return Service.GetAprioriAssortment(listLong).ConvertAll(x=>new JsonResult(x));
+             return Service.GetAprioriAssortment(listLong,  Context).ConvertAll(x=>new JsonResult(x));
          }
 
     }
