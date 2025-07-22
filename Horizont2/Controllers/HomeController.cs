@@ -51,7 +51,19 @@ namespace Horizont2.Controllers
          [HttpGet("GetSaleDocumentsByContrpartner")]
          public List<JsonResult> GetSaleDocumentsByContrpartner(long id)
          {
-             return Context.Assortments.Take(500).ToList().ConvertAll(x => new JsonResult(x));
+             var listSales = Context.SaleDocuments
+                 .Where(x => x.ContrpartnerId == id 
+                             && Context.Sales.Any(u => u.SaleDocumentId == x.Id)).ToList();
+             var assortment = listSales.Select(i => new
+                     {SaleDocument = i, Assortments = Context.Sales.Where(s => s.SaleDocumentId == i.Id)})
+                 .ToList().Select(o => new
+                 {
+                     document = o.SaleDocument,
+                     assortments = Context.Assortments.Where(p => o.Assortments.Any(l => l.AssortmentId == p.Id))
+                         .Distinct().ToList()
+                 }).ToList();
+
+             return assortment.ConvertAll(u => new JsonResult(u));
          }
 
         [HttpGet("GetTnsByContrpartner")]
@@ -62,10 +74,39 @@ namespace Horizont2.Controllers
                  .Select(y => y.Tns).Sum());
          }
 
-        [HttpGet("GetAssortmentApriori")]
-         public List<JsonResult> GetAssortmentApriori(List<JsonResult> assortments)
+         [HttpGet("GetTnsByMonths")]
+         public List<JsonResult> GetTnsByMonths(long id)
          {
-             var ids = new List<long> {5, 9};//assortments.Select(x=>x.SerializerSettings(YieldAwaitable=>y.))
+             var monthTns = Context.SaleDocuments.Where(x => x.ContrpartnerId == id)
+                 .Select(x => new
+                 {
+                     Month = x.DocumentDate.Value.Month,
+                     SalesSum = Context.Sales.Where(t => t.SaleDocumentId == x.Id).Select(t=>t.Tns).Sum()
+                 })
+                 .GroupBy(t => t.Month)
+                 .Select(y => new {Month = y.Key, Tns = y.Sum(r=>r.SalesSum)}).ToList();
+
+             return monthTns.ConvertAll(x => new JsonResult(x));
+         }
+
+         [HttpGet("GetTnsBySuppliers")]
+         public List<JsonResult> GetTnsBySuppliers(long id)
+         {
+            var supplierTns = Context.SaleDocuments.Where(x => x.ContrpartnerId == id)
+                .Select(x => new
+                {
+                    Supplier = x.Supplier,
+                    SalesSum = Context.Sales.Where(t => t.SaleDocumentId == x.Id).Select(t => t.Tns).Sum()
+                })
+                .GroupBy(t => t.Supplier)
+                .Select(y => new { Supplier = y.Key, Tns = y.Sum(r => r.SalesSum) }).ToList();
+
+            return supplierTns.ConvertAll(x => new JsonResult(x));
+        }
+
+         [HttpGet("GetAssortmentApriori")]
+         public List<JsonResult> GetAssortmentApriori(List<long> ids)
+         {
              return Service.GetAprioriAssortment(ids).ConvertAll(x=>new JsonResult(x));
          }
 
