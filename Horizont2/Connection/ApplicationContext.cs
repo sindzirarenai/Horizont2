@@ -27,6 +27,10 @@ namespace Horizont.Connection
         public virtual DbSet<SaleDocument> SaleDocuments { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
+        public List<Contrpartner> GetContrpartners()
+        {
+            return Contrpartners.ToList();
+        }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
