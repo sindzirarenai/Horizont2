@@ -33,13 +33,28 @@ namespace Horizont2.Controllers
             return Context.Contrpartners.Where(x => x.ContrpartnerName.ToLower().Contains(name.ToLower())).ToList()
                 .ConvertAll(x => new JsonResult(x));
         }
+
+
+        [HttpGet("GetContrpartnerByInn")]
+        public List<JsonResult> GetContrpartnerByInn(String inn)
+        {
+            return Context.Contrpartners.Where(x => x.ContrpartnerInn.ToString().ToLower().Contains(inn.ToLower())).ToList()
+                .ConvertAll(x => new JsonResult(x));
+        }
+
         [HttpGet("GetAssortments")]
          public List<JsonResult> GetAssortments()
          {
              return Context.Assortments.Take(500).ToList().ConvertAll(x => new JsonResult(x));
          }
 
-         [HttpGet("GetTnsByContrpartner")]
+         [HttpGet("GetSaleDocumentsByContrpartner")]
+         public List<JsonResult> GetSaleDocumentsByContrpartner(long id)
+         {
+             return Context.Assortments.Take(500).ToList().ConvertAll(x => new JsonResult(x));
+         }
+
+        [HttpGet("GetTnsByContrpartner")]
          public JsonResult GetTnsByContrpartner(long id)
          {
              var documentIds = Context.SaleDocuments.Where(x => x.ContrpartnerId == id).Select(y=>y.Id).ToList();
