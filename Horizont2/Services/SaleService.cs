@@ -3,6 +3,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Horizont.Connection;
 using Horizont.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Horizont.Services
 {
@@ -27,7 +28,7 @@ namespace Horizont.Services
             return contrpartner.SaleDocuments.ToList();
         }
 
-        /*public List<Assortment> GetAprioriAssortment(List<long> ids)
+        public List<Assortment> GetAprioriAssortment(List<long> ids)
         {
             var dictionary = SaleDocuments.Linq()
                 .Where(x => x.GetAssortments().Count(y => ids.Contains(y.Id)) == ids.Count)
@@ -36,10 +37,12 @@ namespace Horizont.Services
                 dictionary.SelectMany(x => x.Value).Distinct().Where(x => !ids.Contains(x.Id)).ToList();
 
             var supportDictionary = new Dictionary<Assortment, int>();
-            foreach (var uniqueAssortment in uniqueAssortments)
+            /*foreach (var uniqueAssortment in uniqueAssortments)
             {
                 supportDictionary.Add(uniqueAssortment, dictionary.Where(x=>x.Value.Contains()));   
-            }
-        }*/
+            }*/
+            return new List<Assortment>();
+        }
+
     }
 }

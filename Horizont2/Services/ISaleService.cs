@@ -9,6 +9,6 @@ namespace Horizont.Services
 {
     public interface ISaleService
     {
-        //List<Assortment> GetAprioriAssortment( List<long> ids);
+        List<Assortment> GetAprioriAssortment( List<long> ids);
     }
 }

@@ -31,13 +31,11 @@ namespace Horizont2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddTransient<ISaleService, SaleService>();
-            services.AddTransient<IBaseRepository<SaleDocument>, BaseRepository<SaleDocument>>();
-            services.AddTransient<IBaseRepository<Assortment>, BaseRepository<Assortment>>();
-            
+            services.AddDbContext<ApplicationContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("Horizons"))
+                    .EnableSensitiveDataLogging());
             services.AddControllers();
+            services.AddTransient<ISaleService, SaleService>();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Horizont2", Version = "v1" });

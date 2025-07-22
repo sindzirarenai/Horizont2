@@ -21,6 +21,9 @@ namespace Horizont2
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                }).ConfigureAppConfiguration(config =>
+                {
+                    config.AddEnvironmentVariables();
                 });
     }
 }
