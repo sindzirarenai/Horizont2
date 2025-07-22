@@ -22,10 +22,7 @@ namespace Horizont.Services
 
   
 
-        public List<SaleDocument> GetSaleDocumentsByContrpartner(Contrpartner contrpartner)
-        {
-            return contrpartner.SaleDocuments.ToList();
-        }
+ 
 
          public List<Assortment> GetAprioriAssortment(List<long> ids)
         {

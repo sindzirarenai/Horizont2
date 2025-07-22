@@ -35,7 +35,8 @@ namespace Horizont.Connection
 
         public List<Assortment> GetAssortmentBySaleDocument(long id)
         {
-            return Sales.Where(x => x.SaleDocumentId == id)
+            var list = Sales.Where(x => x.SaleDocumentId == id).ToList();
+                return list
                 .Select(x => Assortments.FirstOrDefault(y => y.Id == x.AssortmentId))
                 .ToList();
         }
@@ -195,10 +196,10 @@ namespace Horizont.Connection
                     .HasMaxLength(100)
                     .HasColumnName("warehouse_type");
 
-                entity.HasOne(d => d.Contrpartner)
+                /*entity.HasOne(d => d.Contrpartner)
                     .WithMany(p => p.SaleDocuments)
                     .HasForeignKey(d => d.ContrpartnerId)
-                    .HasConstraintName("sale_document_contrpartner_fk");
+                    .HasConstraintName("sale_document_contrpartner_fk");*/
             });
 
             modelBuilder.Entity<User>(entity =>

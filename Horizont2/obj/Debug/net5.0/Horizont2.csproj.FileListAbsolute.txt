@@ -73,4 +73,3 @@ D:\Horizont\Horizont2\Horizont2\obj\Debug\net5.0\ref\Horizont2.dll
 D:\Horizont\Horizont2\Horizont2\obj\Debug\net5.0\Horizont2.pdb
 D:\Horizont\Horizont2\Horizont2\obj\Debug\net5.0\Horizont2.genruntimeconfig.cache
 D:\Horizont\Horizont2\Horizont2\obj\Debug\net5.0\Horizont2.csproj.AssemblyReference.cache
-D:\Horizont\Horizont2\Horizont2\bin\Debug\net5.0\Newtonsoft.Json.dll

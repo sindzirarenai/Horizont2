@@ -9,7 +9,7 @@ namespace Horizont.Models
     {
         public Contrpartner()
         {
-            SaleDocuments = new HashSet<SaleDocument>();
+            //SaleDocuments = new HashSet<SaleDocument>();
         }
 
         public string ContrpartnerName { get; set; }
@@ -18,6 +18,6 @@ namespace Horizont.Models
         public string ContrpartnerStatus { get; set; }
         public string LevelSale { get; set; }
 
-        public virtual ICollection<SaleDocument> SaleDocuments { get; set; }
+        //public virtual ICollection<SaleDocument> SaleDocuments { get; set; }
     }
 }

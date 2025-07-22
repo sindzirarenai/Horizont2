@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
 
 #nullable disable
 
@@ -24,10 +23,9 @@ namespace Horizont.Models
         public DateTime? DocumentDate { get; set; }
 
         public virtual Contrpartner Contrpartner { get; set; }
-        [JsonExtensionData]
+
         public virtual IList<Sale> Sales { get; set; }
 
-        [JsonExtensionData]
         public virtual IList<Assortment> Assortments { get; set; }
 
         public List<Assortment> GetAssortments()
