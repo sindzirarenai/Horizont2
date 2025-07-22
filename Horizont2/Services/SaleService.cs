@@ -30,8 +30,8 @@ namespace Horizont.Services
 
         public List<Assortment> GetAprioriAssortment(List<long> ids, ApplicationContext context)
         {
-            var sales = context.Sales.Where(x => ids.Contains(x.AssortmentId.GetValueOrDefault()))
-                .Select(t => new
+            var sales = context.Sales.Where(x => ids.Contains(x.AssortmentId.GetValueOrDefault())).ToList();
+            var list =    sales.Select(t => new
                 {
                     id = t.SaleDocumentId, assortment = context.Assortments.FirstOrDefault(u => u.Id == t.AssortmentId)
                 })
@@ -40,7 +40,7 @@ namespace Horizont.Services
                     id = x.Key, set = x.Select(l=>l.assortment).ToList()
                 }).ToList();
 
-            var dictionary = sales
+            var dictionary = list
                 .ToDictionary(y => y.id, x => x.set.OrderBy(z => z.Id).ToList());
             
             var uniqueAssortments =
@@ -53,7 +53,8 @@ namespace Horizont.Services
                 supportSet.Add(assortment,  dictionary.Count(j => j.Value.Contains(assortment)));
             }
 
-            return supportSet.OrderByDescending(o => o.Value).Select(l => l.Key).Take(10).ToList();
+            return supportSet.OrderByDescending(o => o.Value).Where(o => o.Value > 2).Select(l => l.Key).Take(10)
+                .ToList();
         }
 
     }
