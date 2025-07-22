@@ -31,12 +31,10 @@ namespace Horizont2
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            services.AddDbContext<ApplicationContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<ApplicationContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("Horizons")).EnableSensitiveDataLogging()
+                    .UseLazyLoadingProxies());
 
-            services.AddTransient<ISaleService, SaleService>();
-            services.AddTransient<IBaseRepository<SaleDocument>, BaseRepository<SaleDocument>>();
-            services.AddTransient<IBaseRepository<Assortment>, BaseRepository<Assortment>>();
-            
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -72,6 +70,9 @@ namespace Horizont2
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=GetSalesBySaleDocument}/{id?}");
             });
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 #nullable disable
 
@@ -10,7 +11,7 @@ namespace Horizont.Models
     {
         public SaleDocument()
         {
-            Sales = new HashSet<Sale>();
+            Sales = new List<Sale>();
         }
 
         public string Division { get; set; }
@@ -23,12 +24,18 @@ namespace Horizont.Models
         public DateTime? DocumentDate { get; set; }
 
         public virtual Contrpartner Contrpartner { get; set; }
-        public virtual ICollection<Sale> Sales { get; set; }
+        [JsonExtensionData]
+        public virtual IList<Sale> Sales { get; set; }
+
+        [JsonExtensionData]
+        public virtual IList<Assortment> Assortments { get; set; }
 
         public List<Assortment> GetAssortments()
         {
             return Sales.Select(x => x.Assortment).ToList();
         }
+
+
 
     }
 }

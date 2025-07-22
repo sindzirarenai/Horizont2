@@ -20,6 +20,7 @@ namespace Horizont.Connection
         {
         }
 
+        
         public virtual DbSet<Assortment> Assortments { get; set; }
         public virtual DbSet<Contrpartner> Contrpartners { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
@@ -31,6 +32,14 @@ namespace Horizont.Connection
         {
             return Contrpartners.ToList();
         }
+
+        public List<Assortment> GetAssortmentBySaleDocument(long id)
+        {
+            return Sales.Where(x => x.SaleDocumentId == id)
+                .Select(x => Assortments.FirstOrDefault(y => y.Id == x.AssortmentId))
+                .ToList();
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -139,10 +148,10 @@ namespace Horizont.Connection
 
                 entity.Property(e => e.Tns).HasColumnName("tns");
 
-                entity.HasOne(d => d.Assortment)
+                /*entity.HasOne(d => d.Assortment)
                     .WithMany(p => p.Sales)
                     .HasForeignKey(d => d.AssortmentId)
-                    .HasConstraintName("sale_assortment_fk");
+                    .HasConstraintName("sale_assortment_fk");*/
 
                 entity.HasOne(d => d.SaleDocument)
                     .WithMany(p => p.Sales)

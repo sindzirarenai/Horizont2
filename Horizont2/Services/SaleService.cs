@@ -27,7 +27,7 @@ namespace Horizont.Services
             return contrpartner.SaleDocuments.ToList();
         }
 
-        /*public List<Assortment> GetAprioriAssortment(List<long> ids)
+         public List<Assortment> GetAprioriAssortment(List<long> ids)
         {
             var dictionary = SaleDocuments.Linq()
                 .Where(x => x.GetAssortments().Count(y => ids.Contains(y.Id)) == ids.Count)
@@ -35,11 +35,12 @@ namespace Horizont.Services
             var uniqueAssortments =
                 dictionary.SelectMany(x => x.Value).Distinct().Where(x => !ids.Contains(x.Id)).ToList();
 
-            var supportDictionary = new Dictionary<Assortment, int>();
+           var supportDictionary = new Dictionary<Assortment, int>();
             foreach (var uniqueAssortment in uniqueAssortments)
             {
-                supportDictionary.Add(uniqueAssortment, dictionary.Where(x=>x.Value.Contains()));   
+                //supportDictionary.Add(uniqueAssortment, dictionary.Where(x=>x.Value.Contains()));   
             }
-        }*/
+            return supportDictionary.OrderBy(y => y.Value).Select(y => y.Key).Take(5).ToList();
+        }
     }
 }

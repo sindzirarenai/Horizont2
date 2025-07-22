@@ -9,7 +9,7 @@ namespace Horizont.Models
     {
         public Assortment()
         {
-            Sales = new HashSet<Sale>();
+            //Sales = new List<Sale>();
         }
 
         public string AssortmentCategory { get; set; }
@@ -20,7 +20,6 @@ namespace Horizont.Models
         public int? Diameter2 { get; set; }
         public int? Wall { get; set; }
         public int? Wall2 { get; set; }
-
-        public virtual ICollection<Sale> Sales { get; set; }
+        //public IEnumerable<Sale> Sales { get; set; }
     }
 }
