@@ -30,9 +30,18 @@ namespace Horizont.Services
 
         public List<Assortment> GetAprioriAssortment(List<long> ids, ApplicationContext context)
         {
-            var dictionary = context.SaleDocuments
-                .Where(x => x.GetAssortments().Count(y => ids.Contains(y.Id)) == ids.Count)
-                .ToDictionary(y => y.Id, x => x.Sales.Select(z => z.Assortment).OrderBy(z => z.Id).ToList());
+            var sales = context.Sales.Where(x => ids.Contains(x.AssortmentId.GetValueOrDefault()))
+                .Select(t => new
+                {
+                    id = t.SaleDocumentId, assortment = context.Assortments.FirstOrDefault(u => u.Id == t.AssortmentId)
+                })
+                .GroupBy(k => k.id).Select(x => new
+                {
+                    id = x.Key, set = x.Select(l=>l.assortment).ToList()
+                }).ToList();
+
+            var dictionary = sales
+                .ToDictionary(y => y.id, x => x.set.OrderBy(z => z.Id).ToList());
             
             var uniqueAssortments =
                 dictionary.SelectMany(y => y.Value).Distinct().Where(l => !ids.Contains(l.Id)).ToList();

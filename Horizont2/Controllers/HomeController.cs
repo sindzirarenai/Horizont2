@@ -42,6 +42,30 @@ namespace Horizont2.Controllers
                 .ConvertAll(x => new JsonResult(x));
         }
 
+        [HttpGet("GetContrpartnerByDivision")]
+        public List<JsonResult> GetContrpartnerByDivision(String division)
+        {
+           var saleDocs=  Context.SaleDocuments
+                .Where(x => x.Division.ToLower().Contains(division.ToLower()))
+                .Select(l=>l.ContrpartnerId).Distinct().Take(200).ToList();
+
+             return   Context.Contrpartners.Where(j => saleDocs.Contains(j.Id))
+                .ToList()
+                .ConvertAll(x => new JsonResult(x));
+        }
+
+        [HttpGet("GetContrpartnerByWarehouse")]
+        public List<JsonResult> GetContrpartnerByWarehouse(String warehouse)
+        {
+            var saleDocs = Context.SaleDocuments
+                .Where(x => x.Warehouse.ToLower().Contains(warehouse.ToLower()))
+                .Select(l => l.ContrpartnerId).Distinct().Take(200).ToList();
+
+            return Context.Contrpartners.Where(j => saleDocs.Contains(j.Id))
+                .ToList()
+                .ConvertAll(x => new JsonResult(x));
+        }
+
         [HttpGet("GetAssortments")]
          public List<JsonResult> GetAssortments()
          {
