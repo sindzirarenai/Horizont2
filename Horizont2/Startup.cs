@@ -34,6 +34,16 @@ namespace Horizont2
             services.AddDbContext<ApplicationContext>(options =>
                 options.UseNpgsql(Configuration.GetConnectionString("Horizons"))
                     .EnableSensitiveDataLogging());
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowLocalhost3000",
+                    builder =>
+                    {
+                        builder.WithOrigins("http://localhost:3000")
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
             services.AddControllers();
             services.AddTransient<ISaleService, SaleService>();
             services.AddSwaggerGen(c =>
@@ -53,7 +63,7 @@ namespace Horizont2
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Horizont2 v1"));
             }
-
+            app.UseCors("AllowLocalhost3000");
             app.UseHttpsRedirection();
             app.UseDeveloperExceptionPage();
             app.UseRouting();

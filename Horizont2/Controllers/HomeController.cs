@@ -24,7 +24,7 @@ namespace Horizont2.Controllers
         {
             Context = dbContext;
             _logger = logger;
-            Service = Service;
+            Service = service;
         }
 
         [HttpGet("GetContrpartnerByName")]
@@ -36,9 +36,9 @@ namespace Horizont2.Controllers
 
 
         [HttpGet("GetContrpartnerByInn")]
-        public List<JsonResult> GetContrpartnerByInn(String inn)
+        public List<JsonResult> GetContrpartnerByInn(long inn)
         {
-            return Context.Contrpartners.Where(x => x.ContrpartnerInn.ToString().ToLower().Contains(inn.ToLower())).ToList()
+            return Context.Contrpartners.Where(x => x.ContrpartnerInn.ToString().ToLower().Contains(inn.ToString().ToLower())).ToList()
                 .ConvertAll(x => new JsonResult(x));
         }
 
@@ -105,9 +105,10 @@ namespace Horizont2.Controllers
         }
 
          [HttpGet("GetAssortmentApriori")]
-         public List<JsonResult> GetAssortmentApriori(List<long> ids)
+         public List<JsonResult> GetAssortmentApriori(string ids)
          {
-             return Service.GetAprioriAssortment(ids).ConvertAll(x=>new JsonResult(x));
+             var listLong = ids.Split(',').Select(k=>Int64.Parse(k)).ToList();
+             return Service.GetAprioriAssortment(listLong).ConvertAll(x=>new JsonResult(x));
          }
 
     }

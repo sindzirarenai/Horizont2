@@ -28,20 +28,23 @@ namespace Horizont.Services
             return contrpartner.SaleDocuments.ToList();
         }
 
-        public List<Assortment> GetAprioriAssortment(List<long> ids)
+        public List<Assortment> GetAprioriAssortment(List<long> ids, ApplicationContext context)
         {
-            var dictionary = SaleDocuments.Linq()
+            var dictionary = context.SaleDocuments
                 .Where(x => x.GetAssortments().Count(y => ids.Contains(y.Id)) == ids.Count)
-                .ToDictionary(y => y, x => x.Sales.Select(z => z.Assortment).OrderBy(z => z.Id).ToList());
+                .ToDictionary(y => y.Id, x => x.Sales.Select(z => z.Assortment).OrderBy(z => z.Id).ToList());
+            
             var uniqueAssortments =
-                dictionary.SelectMany(x => x.Value).Distinct().Where(x => !ids.Contains(x.Id)).ToList();
+                dictionary.SelectMany(y => y.Value).Distinct().Where(l => !ids.Contains(l.Id)).ToList();
 
-            var supportDictionary = new Dictionary<Assortment, int>();
-            /*foreach (var uniqueAssortment in uniqueAssortments)
+            var supportSet = new Dictionary<Assortment, long>();
+
+            foreach (var assortment in uniqueAssortments)
             {
-                supportDictionary.Add(uniqueAssortment, dictionary.Where(x=>x.Value.Contains()));   
-            }*/
-            return new List<Assortment>();
+                supportSet.Add(assortment,  dictionary.Count(j => j.Value.Contains(assortment)));
+            }
+
+            return supportSet.OrderByDescending(o => o.Value).Select(l => l.Key).Take(10).ToList();
         }
 
     }
