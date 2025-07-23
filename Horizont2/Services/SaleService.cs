@@ -11,24 +11,6 @@ namespace Horizont.Services
 {
     public class SaleService : ISaleService
     {
-        private IBaseRepository<Sale> Sales { get; set; }
-        private IBaseRepository<SaleDocument> SaleDocuments { get; set; }
-        private IBaseRepository<Contrpartner> Contrpartners { get; set; }
-        private IBaseRepository<Assortment> Assortments { get; set; }
-
-
-
-        public List<Contrpartner> GetContrpartners()
-        {
-            return Contrpartners.GetAll();
-        }
-
-
-
-        public List<SaleDocument> GetSaleDocumentsByContrpartner(Contrpartner contrpartner)
-        {
-            return contrpartner.SaleDocuments.ToList();
-        }
 
         public List<Assortment> GetFrequentlyAssortment(ApplicationContext context)
         {
@@ -59,6 +41,8 @@ namespace Horizont.Services
 
         public List<Assortment> GetFrequentlyAssortmentByContrpartner(ApplicationContext context, long id)
         {
+            var regionDoc = context.SaleDocuments.FirstOrDefault(x => x.ContrpartnerId==id).Division;
+            var saleDocs = context.SaleDocuments.Where(x => x.ContrpartnerId != id && x.Division == regionDoc);
             var sales = context.Sales.ToList()
                 .Select(x => new { SaleDocId = x.SaleDocumentId, AssortmentId = x.AssortmentId })
                 .Distinct()
@@ -72,32 +56,30 @@ namespace Horizont.Services
             return assortments;
         }
 
-        public List<Assortment> GetAprioriAssortment(long id, ApplicationContext context)
+        public List<Assortment> GetAssortmentApriori(long id, ApplicationContext context)
         {
             var contrpartnerDocIds = context.SaleDocuments.Where(x => x.ContrpartnerId == id).Select(x => x.Id).ToList();
-            var saleIds = context.Sales.Where(x => contrpartnerDocIds.Contains(x.SaleDocumentId.GetValueOrDefault()))
+            var assortmentIds = context.Sales.Where(x => contrpartnerDocIds.Contains(x.SaleDocumentId.GetValueOrDefault()))
                 .Select(y => y.AssortmentId).Distinct().ToList();
 
-            var saleDocId = context.Sales.Where(x => saleIds.Contains(x.AssortmentId.GetValueOrDefault()))
+            var saleDocId = context.Sales.Where(x =>
+                    !contrpartnerDocIds.Contains(x.SaleDocumentId.GetValueOrDefault()) &&
+                    assortmentIds.Contains(x.AssortmentId.GetValueOrDefault()))
                 .Select(x => x.SaleDocumentId).ToList();
+
             var sales = context.Sales.Where(x => saleDocId.Contains(x.SaleDocumentId)).ToList();
+
             var list = sales
-                .Select(t => new
+                .GroupBy(k => k.SaleDocumentId).Select(x => new
                 {
-                    id = t.SaleDocumentId, assortment = t.AssortmentId
-                })
-                .GroupBy(k => k.id).Select(x => new
-                {
-                    id = x.Key, set = x.Select(l => l.assortment).ToList()
+                    id = x.Key, set = x.Select(l => l.AssortmentId).ToList()
                 }).ToList();
 
             var dictionary = list
                 .ToDictionary(y => y.id, x => x.set.OrderBy(z => z).ToList());
             
-            var uniqueAssortments =
-                dictionary.SelectMany(y => y.Value).Distinct().ToList();
-
-            uniqueAssortments.RemoveAll(x => saleIds.Contains(x.GetValueOrDefault()));
+            var uniqueAssortments = dictionary.SelectMany(y => y.Value).Distinct().ToList();
+            uniqueAssortments.RemoveAll(x => assortmentIds.Contains(x.GetValueOrDefault()));
 
             var supportSet = new Dictionary<Assortment, long>();
 

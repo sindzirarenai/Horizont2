@@ -124,9 +124,9 @@ namespace Horizont2.Controllers
         }
 
          [HttpGet("GetAssortmentApriori")]
-         public List<JsonResult> GetAssortmentApriori(long contrpartnerId)
+         public List<JsonResult> GetAssortmentApriori(long id)
          {
-             return Service.GetAprioriAssortment(contrpartnerId,  Context).ConvertAll(x=>new JsonResult(x));
+             return Service.GetAssortmentApriori(id,  Context).ConvertAll(x=>new JsonResult(x));
          }
 
          [HttpGet("GetFrequentlyAssortment")]
