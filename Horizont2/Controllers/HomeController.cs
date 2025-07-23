@@ -45,12 +45,7 @@ namespace Horizont2.Controllers
         [HttpGet("GetContrpartnerByDivision")]
         public List<JsonResult> GetContrpartnerByDivision(String division)
         {
-           var saleDocs=  Context.SaleDocuments
-                .Where(x => x.Division.ToLower().Contains(division.ToLower()))
-                .Select(l=>l.ContrpartnerId).Distinct().Take(200).ToList();
-
-             return   Context.Contrpartners.Where(j => saleDocs.Contains(j.Id))
-                .ToList()
+          return   Service.GetContrpartnersByDivision(Context, division)
                 .ConvertAll(x => new JsonResult(x));
         }
 
@@ -129,16 +124,21 @@ namespace Horizont2.Controllers
         }
 
          [HttpGet("GetAssortmentApriori")]
-         public List<JsonResult> GetAssortmentApriori(string ids)
+         public List<JsonResult> GetAssortmentApriori(long contrpartnerId)
          {
-             var listLong = ids.Split(',').Select(k=>Int64.Parse(k)).ToList();
-             return Service.GetAprioriAssortment(listLong,  Context).ConvertAll(x=>new JsonResult(x));
+             return Service.GetAprioriAssortment(contrpartnerId,  Context).ConvertAll(x=>new JsonResult(x));
          }
 
          [HttpGet("GetFrequentlyAssortment")]
          public List<JsonResult> GetFrequentlyAssortment()
          {
              return Service.GetFrequentlyAssortment( Context).ConvertAll(x => new JsonResult(x));
+         }
+
+         [HttpGet("GetFrequentlyAssortmentByContrpartner")]
+         public List<JsonResult> GetFrequentlyAssortmentByContrpartner(long id)
+         {
+             return Service.GetFrequentlyAssortmentByContrpartner(Context , id).ConvertAll(x => new JsonResult(x));
          }
 
     }

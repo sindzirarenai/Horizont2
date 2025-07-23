@@ -9,7 +9,9 @@ namespace Horizont.Services
 {
     public interface ISaleService
     {
-        List<Assortment> GetAprioriAssortment( List<long> ids, ApplicationContext context);
+        List<Assortment> GetAprioriAssortment(long id, ApplicationContext context);
         List<Assortment> GetFrequentlyAssortment(ApplicationContext context);
+        List<Contrpartner> GetContrpartnersByDivision(ApplicationContext context, string division);
+        List<Assortment> GetFrequentlyAssortmentByContrpartner(ApplicationContext context, long id);
     }
 }
