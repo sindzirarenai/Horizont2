@@ -42,12 +42,14 @@ namespace Horizont.Services
         public List<Assortment> GetFrequentlyAssortmentByContrpartner(ApplicationContext context, long id)
         {
             var regionDoc = context.SaleDocuments.FirstOrDefault(x => x.ContrpartnerId==id).Division;
-            var saleDocs = context.SaleDocuments.Where(x => x.ContrpartnerId != id && x.Division == regionDoc);
-            var sales = context.Sales.ToList()
-                .Select(x => new { SaleDocId = x.SaleDocumentId, AssortmentId = x.AssortmentId })
+            var saleDocIds = context.SaleDocuments.Where(x => x.ContrpartnerId != id && x.Division == regionDoc)
+                .Select(x => x.Id).ToList();
+
+            var sales = context.Sales.Where(x => saleDocIds.Contains(x.SaleDocumentId.GetValueOrDefault())).ToList()
+                .Select(x => new {SaleDocId = x.SaleDocumentId, AssortmentId = x.AssortmentId})
                 .Distinct()
                 .GroupBy(h => h.AssortmentId)
-                .Select(t => new { key = t.Key, weight = t.Count() })
+                .Select(t => new {key = t.Key, weight = t.Count()})
                 .ToList();
 
             var result = sales.OrderByDescending(x => x.weight).Take(10).Select(y => y.key).ToList();
