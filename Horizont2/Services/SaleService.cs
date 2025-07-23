@@ -3,13 +3,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Horizont.Connection;
 using Horizont.Models;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Horizont.Services
 {
-    public class SaleService:ISaleService
+    public class SaleService : ISaleService
     {
-       private IBaseRepository<Sale> Sales { get; set; }
+        private IBaseRepository<Sale> Sales { get; set; }
         private IBaseRepository<SaleDocument> SaleDocuments { get; set; }
         private IBaseRepository<Contrpartner> Contrpartners { get; set; }
         private IBaseRepository<Assortment> Assortments { get; set; }
@@ -21,14 +22,30 @@ namespace Horizont.Services
             return Contrpartners.GetAll();
         }
 
-  
+
 
         public List<SaleDocument> GetSaleDocumentsByContrpartner(Contrpartner contrpartner)
         {
             return contrpartner.SaleDocuments.ToList();
         }
 
-        public List<Assortment> GetAprioriAssortment(List<long> ids, ApplicationContext context)
+        public List<Assortment> GetFrequentlyAssortment(ApplicationContext context)
+        {
+            var sales = context.Sales.ToList()
+                .Select(x => new {SaleDocId = x.SaleDocumentId, AssortmentId = x.AssortmentId})
+                .Distinct()
+                .GroupBy(h => h.AssortmentId)
+                .Select(t => new {key = t.Key, weight = t.Count()})
+                .ToList();
+
+            var result = sales.OrderByDescending(x => x.weight).Take(10).Select(y=>y.key).ToList();
+            var assortments = result.Select(x => context.Assortments.FirstOrDefault(d => x == d.Id)).ToList();
+            assortments.ForEach(x => x.Sales = new List<Sale>());
+            return
+                assortments;
+        }
+
+    public List<Assortment> GetAprioriAssortment(List<long> ids, ApplicationContext context)
         {
             var sales = context.Sales.Where(x => ids.Contains(x.AssortmentId.GetValueOrDefault())).ToList();
             var list =    sales.Select(t => new
