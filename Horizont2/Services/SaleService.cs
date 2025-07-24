@@ -58,37 +58,55 @@ namespace Horizont.Services
             return assortments;
         }
 
+        private List<List<long>> GetSetAssortmentsFromDocuments (List<long> saleDocumentIds, ApplicationContext context)
+        {
+            return context.Sales
+                .Where(x => saleDocumentIds.Contains(x.SaleDocumentId.GetValueOrDefault()))
+                .ToList()
+                .GroupBy(x => x.SaleDocumentId)
+                .Select(z => z.Select(t => t.AssortmentId.GetValueOrDefault()).ToList().OrderBy(x => x).ToList())
+                .ToList();
+        }
+
         public List<Assortment> GetAssortmentApriori(long id, ApplicationContext context)
         {
-            var contrpartnerDocIds = context.SaleDocuments.Where(x => x.ContrpartnerId == id).Select(x => x.Id).ToList();
-            var assortmentIds = context.Sales.Where(x => contrpartnerDocIds.Contains(x.SaleDocumentId.GetValueOrDefault()))
-                .Select(y => y.AssortmentId).Distinct().ToList();
+            var levelCalculate = 10;
 
-            var saleDocId = context.Sales.Where(x =>
-                    !contrpartnerDocIds.Contains(x.SaleDocumentId.GetValueOrDefault()) &&
-                    assortmentIds.Contains(x.AssortmentId.GetValueOrDefault()))
-                .Select(x => x.SaleDocumentId).ToList();
+            //продажи контрагента
+            var contrpartnerDocIds =
+                context.SaleDocuments.Where(x => x.ContrpartnerId == id).Select(x => x.Id).ToList();
 
-            var sales = context.Sales.Where(x => saleDocId.Contains(x.SaleDocumentId)).ToList();
-
-            var list = sales
-                .GroupBy(k => k.SaleDocumentId).Select(x => new
-                {
-                    id = x.Key, set = x.Select(l => l.AssortmentId).ToList()
-                }).ToList();
-
-            var dictionary = list
-                .ToDictionary(y => y.id, x => x.set.OrderBy(z => z).ToList());
+            if (!contrpartnerDocIds.Any()) return new List<Assortment>();
             
-            var uniqueAssortments = dictionary.SelectMany(y => y.Value).Distinct().ToList();
-            uniqueAssortments.RemoveAll(x => assortmentIds.Contains(x.GetValueOrDefault()));
+            //вычисляем популярный набор у контрагента (не более ограничения)
+            var assortmentFrequentlyIds = GetSetAssortmentsFromDocuments(contrpartnerDocIds, context)
+                .Where(x => x.Count <= levelCalculate).ToList()
+                .GroupBy(x => x)
+                .Select(z => new {Assortment = z.Key, Cnt = z.Count()})
+                .OrderByDescending(x => x.Cnt).FirstOrDefault()?.Assortment;
 
-            var supportSet = new Dictionary<Assortment, long>();
+           if (assortmentFrequentlyIds == null) return new List<Assortment>();
+
+           //Ищем подходящие документы других контрагентов с подходящим сортаментом
+           var saleDocId = context.Sales.Where(x =>
+                   !contrpartnerDocIds.Contains(x.SaleDocumentId.GetValueOrDefault())
+                   && assortmentFrequentlyIds.Contains(x.AssortmentId.GetValueOrDefault()))
+               .Select(x => x.SaleDocumentId.GetValueOrDefault()).ToList();
+
+           //Достаем наборы сортамента, содержащие набор контрагента
+           var assortmentForSupport = GetSetAssortmentsFromDocuments(saleDocId, context)
+               .Where(x => x.Count(t => assortmentFrequentlyIds.Contains(t)) == assortmentFrequentlyIds.Count);
+
+           //Берем уникальные сортаменты из наборов
+           var uniqueAssortments = assortmentForSupport.SelectMany(y => y).Distinct().ToList();
+           uniqueAssortments.RemoveAll(x => assortmentFrequentlyIds.Contains(x));
+
+           var supportSet = new Dictionary<Assortment, long>();
 
             foreach (var assortment in uniqueAssortments)
             {
                 supportSet.Add(context.Assortments.FirstOrDefault(x => x.Id == assortment),
-                    dictionary.Count(j => j.Value.Contains(assortment)));
+                    assortmentForSupport.Count(j => j.Contains(assortment)));
             }
 
            var result = supportSet.OrderByDescending(o => o.Value)
