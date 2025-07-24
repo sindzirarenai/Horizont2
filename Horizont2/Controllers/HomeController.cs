@@ -30,6 +30,7 @@ namespace Horizont2.Controllers
         [HttpGet("GetContrpartnerByName")]
         public List<JsonResult> GetContrpartnerByName(String name)
         {
+            _logger.LogInformation("GET GetContrpartnerByName, args="+ name);
             return Context.Contrpartners.Where(x => x.ContrpartnerName.ToLower().Contains(name.ToLower())).ToList()
                 .ConvertAll(x => new JsonResult(x));
         }
@@ -38,6 +39,7 @@ namespace Horizont2.Controllers
         [HttpGet("GetContrpartnerByInn")]
         public List<JsonResult> GetContrpartnerByInn(long inn)
         {
+            _logger.LogInformation("GET GetContrpartnerByInn, args=" + inn);
             return Context.Contrpartners.Where(x => x.ContrpartnerInn.ToString().ToLower().Contains(inn.ToString().ToLower())).ToList()
                 .ConvertAll(x => new JsonResult(x));
         }
@@ -45,13 +47,15 @@ namespace Horizont2.Controllers
         [HttpGet("GetContrpartnerByDivision")]
         public List<JsonResult> GetContrpartnerByDivision(String division)
         {
-          return   Service.GetContrpartnersByDivision(Context, division)
+            _logger.LogInformation("GET GetContrpartnerByDivision, args=" + division);
+            return   Service.GetContrpartnersByDivision(Context, division)
                 .ConvertAll(x => new JsonResult(x));
         }
 
         [HttpGet("GetContrpartnerByWarehouse")]
         public List<JsonResult> GetContrpartnerByWarehouse(String warehouse)
         {
+            _logger.LogInformation("GET GetContrpartnerByWarehouse, args=" + warehouse);
             var saleDocs = Context.SaleDocuments
                 .Where(x => x.Warehouse.ToLower().Contains(warehouse.ToLower()))
                 .Select(l => l.ContrpartnerId).Distinct().Take(200).ToList();
@@ -64,13 +68,15 @@ namespace Horizont2.Controllers
         [HttpGet("GetAssortments")]
          public List<JsonResult> GetAssortments()
          {
-             return Context.Assortments.Take(500).ToList().ConvertAll(x => new JsonResult(x));
+             _logger.LogInformation("GET GetAssortments");
+            return Context.Assortments.Take(500).ToList().ConvertAll(x => new JsonResult(x));
          }
 
          [HttpGet("GetSaleDocumentsByContrpartner")]
          public List<JsonResult> GetSaleDocumentsByContrpartner(long id)
          {
-             var listSales = Context.SaleDocuments
+            _logger.LogInformation("GET GetSaleDocumentsByContrpartner, args=" );
+            var listSales = Context.SaleDocuments
                  .Where(x => x.ContrpartnerId == id 
                              && Context.Sales.Any(u => u.SaleDocumentId == x.Id)).ToList();
              var assortment = listSales.Select(i => new
@@ -88,7 +94,8 @@ namespace Horizont2.Controllers
         [HttpGet("GetTnsByContrpartner")]
          public JsonResult GetTnsByContrpartner(long id)
          {
-             var documentIds = Context.SaleDocuments.Where(x => x.ContrpartnerId == id).Select(y=>y.Id).ToList();
+             _logger.LogInformation("GET GetTnsByContrpartner, args=" + id);
+            var documentIds = Context.SaleDocuments.Where(x => x.ContrpartnerId == id).Select(y=>y.Id).ToList();
              return new JsonResult(Context.Sales.Where(x => documentIds.Contains(x.SaleDocumentId.GetValueOrDefault()))
                  .Select(y => y.Tns).Sum());
          }
@@ -96,7 +103,8 @@ namespace Horizont2.Controllers
          [HttpGet("GetTnsByMonths")]
          public List<JsonResult> GetTnsByMonths(long id)
          {
-             var monthTns = Context.SaleDocuments.Where(x => x.ContrpartnerId == id)
+             _logger.LogInformation("GET GetTnsByMonths, args=" + id);
+            var monthTns = Context.SaleDocuments.Where(x => x.ContrpartnerId == id)
                  .Select(x => new
                  {
                      Month = x.DocumentDate.Value.Month,
@@ -111,6 +119,7 @@ namespace Horizont2.Controllers
          [HttpGet("GetTnsBySuppliers")]
          public List<JsonResult> GetTnsBySuppliers(long id)
          {
+             _logger.LogInformation("GET GetTnsBySuppliers, args=" + id);
             var supplierTns = Context.SaleDocuments.Where(x => x.ContrpartnerId == id)
                 .Select(x => new
                 {
@@ -126,19 +135,22 @@ namespace Horizont2.Controllers
          [HttpGet("GetAssortmentApriori")]
          public List<JsonResult> GetAssortmentApriori(long id)
          {
-             return Service.GetAssortmentApriori(id,  Context).ConvertAll(x=>new JsonResult(x));
+             _logger.LogInformation("GET GetAssortmentApriori, args=" + id);
+            return Service.GetAssortmentApriori(id,  Context).ConvertAll(x=>new JsonResult(x));
          }
 
          [HttpGet("GetFrequentlyAssortment")]
          public List<JsonResult> GetFrequentlyAssortment()
          {
-             return Service.GetFrequentlyAssortment( Context).ConvertAll(x => new JsonResult(x));
+             _logger.LogInformation("GET GetFrequentlyAssortment" );
+            return Service.GetFrequentlyAssortment( Context).ConvertAll(x => new JsonResult(x));
          }
 
          [HttpGet("GetFrequentlyAssortmentByContrpartner")]
          public List<JsonResult> GetFrequentlyAssortmentByContrpartner(long id)
          {
-             return Service.GetFrequentlyAssortmentByContrpartner(Context , id).ConvertAll(x => new JsonResult(x));
+             _logger.LogInformation("GET GetFrequentlyAssortmentByContrpartner, args=" + id);
+            return Service.GetFrequentlyAssortmentByContrpartner(Context , id).ConvertAll(x => new JsonResult(x));
          }
 
     }
